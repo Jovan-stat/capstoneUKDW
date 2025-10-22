@@ -44,6 +44,7 @@ fig.add_trace(go.Bar(
     x=all_data['ruang'],
     y=all_data['efisiensi (%)'],
     name='Semua Ruang',
+    visible=False,  # tidak tampil duluan
     text=all_data['efisiensi (%)'].astype(str) + '%',
     textposition='outside',
     marker_color='steelblue'
@@ -54,7 +55,7 @@ fig.add_trace(go.Bar(
     x=top10['ruang'],
     y=top10['efisiensi (%)'],
     name='10 Teratas',
-    visible=False,
+    visible=True,  # tampil pertama
     text=top10['efisiensi (%)'].astype(str) + '%',
     textposition='outside',
     marker_color='seagreen'
