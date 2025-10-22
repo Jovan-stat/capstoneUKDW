@@ -1,31 +1,31 @@
 import pandas as pd
 import plotly.graph_objects as go
 
-# 1. Baca data
+# 1. Baca data dari Google Sheets
 url_ruang = "https://docs.google.com/spreadsheets/d/1CJuK0EetknB67O6CwXxXlFObHkYHhGPP/export?format=csv"
 url_matkul = "https://docs.google.com/spreadsheets/d/13PXTH2JAk51azCj6KzwjD59OAZrKt1f0/export?format=csv"
 
 df_ruang = pd.read_csv(url_ruang)
 df_matkul = pd.read_csv(url_matkul)
 
-# 2. Gabungkan
+# 2. Gabungkan berdasarkan kolom 'ruang'
 df_gabung = df_matkul.merge(df_ruang[['ruang', 'kapasitas']], on='ruang', how='left')
 
-# 3. Pastikan angka
+# 3. Ubah kolom peserta dan kapasitas menjadi numerik
 df_gabung['peserta'] = pd.to_numeric(df_gabung['peserta'], errors='coerce')
 df_gabung['kapasitas'] = pd.to_numeric(df_gabung['kapasitas'], errors='coerce')
 
 # 4. Hitung efisiensi per kelas
 df_gabung['efisiensi'] = df_gabung['peserta'] / df_gabung['kapasitas']
 
-# 5. Rata-rata efisiensi per ruang
+# 5. Hitung rata-rata efisiensi per ruang
 efisiensi_per_ruang = (
     df_gabung.groupby('ruang')['efisiensi']
     .mean()
     .reset_index()
 )
 
-# 6. Ubah ke persen
+# 6. Ubah ke persen dan bulatkan 2 angka di belakang koma
 efisiensi_per_ruang['efisiensi (%)'] = (efisiensi_per_ruang['efisiensi'] * 100).round(2)
 
 # 7. Urutkan dari tertinggi ke terendah
@@ -36,31 +36,32 @@ top10 = efisiensi_per_ruang.head(10)
 bottom10 = efisiensi_per_ruang.tail(10)
 all_data = efisiensi_per_ruang
 
-# 9. Buat grafik interaktif dengan label di batang
+# 9. Buat grafik interaktif
 fig = go.Figure()
 
-# --- Semua data ---
+# --- Semua data (disembunyikan default)
 fig.add_trace(go.Bar(
     x=all_data['ruang'],
     y=all_data['efisiensi (%)'],
     name='Semua Ruang',
+    visible=False,
     text=all_data['efisiensi (%)'].astype(str) + '%',
     textposition='outside',
     marker_color='steelblue'
 ))
 
-# --- 10 Teratas ---
+# --- 10 Teratas (default tampil)
 fig.add_trace(go.Bar(
     x=top10['ruang'],
     y=top10['efisiensi (%)'],
     name='10 Teratas',
-    visible=False,
+    visible=True,
     text=top10['efisiensi (%)'].astype(str) + '%',
     textposition='outside',
     marker_color='seagreen'
 ))
 
-# --- 10 Terbawah ---
+# --- 10 Terbawah (disembunyikan default)
 fig.add_trace(go.Bar(
     x=bottom10['ruang'],
     y=bottom10['efisiensi (%)'],
@@ -71,9 +72,8 @@ fig.add_trace(go.Bar(
     marker_color='indianred'
 ))
 
-# 10. Dropdown filter
+# 10. Dropdown filter di kanan atas
 fig.update_layout(
-    title="Efisiensi Penggunaan Ruangan (%)",
     xaxis_title="Ruang",
     yaxis_title="Efisiensi (%)",
     xaxis_tickangle=90,
@@ -83,28 +83,30 @@ fig.update_layout(
                 dict(label="Semua Ruang",
                      method="update",
                      args=[{"visible": [True, False, False]},
-                           {"title": "Semua Ruangan"}]),
+                           {"title": ""}]),
                 dict(label="10 Teratas",
                      method="update",
                      args=[{"visible": [False, True, False]},
-                           {"title": "10 Ruangan dengan Efisiensi Tertinggi"}]),
+                           {"title": ""}]),
                 dict(label="10 Terbawah",
                      method="update",
                      args=[{"visible": [False, False, True]},
-                           {"title": "10 Ruangan dengan Efisiensi Terendah"}]),
+                           {"title": ""}]),
             ]),
             direction="down",
             showactive=True,
-            x=0.1,
+            active=1,           # <- Default aktif di "10 Teratas"
+            x=0.95,             # <- Geser ke kanan
             y=1.15,
-            xanchor="left",
+            xanchor="right",
             yanchor="top"
         ),
     ],
-    height=600
+    height=600,
+    title=""
 )
 
-# 11. Sedikit styling tambahan
+# 11. Styling tambahan
 fig.update_traces(textfont_size=11)
 fig.update_yaxes(range=[0, efisiensi_per_ruang['efisiensi (%)'].max() + 10])
 
