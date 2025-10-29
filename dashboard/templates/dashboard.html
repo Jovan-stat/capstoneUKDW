@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Efisiensi Penggunaan Ruang Kelas</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    body {
+      background-color: #f7f3eb;
+    }
+    .card {
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 16px;
+      text-align: center;
+    }
+    .chart-container {
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="d-flex">
+    <div class="flex-grow-1 p-4">
+      <!-- Header -->
+      <div class="mb-4 text-center">
+        <h3 class="fw-bold">Dashboard Efisiensi Penggunaan Ruang Kelas</h3>
+        <p class="text-muted mb-0">Universitas Kristen Duta Wacana</p>
+      </div>
+
+      <!-- Filter Box -->
+      <div class="card shadow-sm rounded-4 p-3 mb-4">
+        <div class="row align-items-center g-3">
+          <div class="col-md-4">
+            <label class="fw-semibold">Periode</label>
+            <select class="form-select" id="periodeSelect" onchange="ubahPeriode()">
+              {% for p in periode_list %}
+                <option value="{{ p }}" {% if p == periode %}selected{% endif %}>Tahun Ajaran {{ p }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-8 text-md-end">
+            <a href="/lihat_data" class="btn btn-secondary me-2">📋 Lihat Data Lengkap</a>
+            <button class="btn btn-success">⬆️ Upload Data Baru</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grafik Section -->
+      <div class="container-fluid">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card p-3 h-100">
+              <h6 class="card-title">Efisiensi Berdasarkan Ruang Kelas</h6>
+              <div class="chart-container">{{ graph_ruang | safe }}</div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card p-3 h-100">
+              <h6 class="card-title">Efisiensi Berdasarkan Program Studi</h6>
+              <div class="chart-container">{{ graph_prodi | safe }}</div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card p-3 h-100">
+              <h6 class="card-title">Efisiensi Berdasarkan Hari dan Sesi</h6>
+              <div class="chart-container">{{ graph_hari_sesi | safe }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function ubahPeriode() {
+      const periode = document.getElementById('periodeSelect').value;
+      window.location.href = `/?periode=${encodeURIComponent(periode)}`;
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

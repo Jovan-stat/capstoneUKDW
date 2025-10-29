@@ -1,0 +1,10 @@
+body {
+  font-family: "Poppins", sans-serif;
+}
+.nav-link:hover {
+  background-color: #e8e8e8;
+  border-radius: 8px;
+}
+.card {
+  background-color: #fffaf2;
+}
